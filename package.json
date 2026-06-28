@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
+    "prepack": "node -e \"try{require('fs').chmodSync('dist/index.js',0o755)}catch(e){}\"",
     "prepublishOnly": "npm run build",
     "lint": "tsc --noEmit"
   },
