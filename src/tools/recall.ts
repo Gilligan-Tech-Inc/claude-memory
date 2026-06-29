@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { DatabaseSync } from 'node:sqlite';
+import type { MemoryDb } from '../db.js';
 import { dbRecall } from '../db.js';
 
-export function registerRecall(server: McpServer, db: DatabaseSync): void {
+export function registerRecall(server: McpServer, db: MemoryDb): void {
   server.registerTool(
     'memory_recall',
     {
@@ -25,6 +25,11 @@ export function registerRecall(server: McpServer, db: DatabaseSync): void {
           .max(32)
           .optional()
           .describe('Filter by memory type (e.g. "decision", "rules", "deploy").'),
+        tags: z
+          .array(z.string().max(64))
+          .max(10)
+          .optional()
+          .describe('Filter to memories that have ALL of these tags (AND-match).'),
         limit: z
           .number()
           .int()
@@ -32,6 +37,10 @@ export function registerRecall(server: McpServer, db: DatabaseSync): void {
           .max(50)
           .default(10)
           .describe('Maximum number of results to return.'),
+        include_archived: z
+          .boolean()
+          .optional()
+          .describe('Set true to include archived memories in results. Defaults to false.'),
       },
     },
     async (args) => {

@@ -66,9 +66,14 @@ worth remembering — or you can ask it to.
 |------|-------------|
 | `memory_bootstrap` | Load all memories for a project at session start |
 | `memory_save` | Save a note, decision, rule, or fact |
-| `memory_recall` | Search memories by keyword |
-| `memory_update` | Update an existing memory by ID |
-| `memory_delete` | Delete a memory by ID |
+| `memory_recall` | Search by keyword — FTS5/BM25 ranking, optional tag filter, recency-weighted |
+| `memory_update` | Replace an existing memory's content by ID |
+| `memory_delete` | Permanently remove a memory by ID |
+| `memory_archive` | Soft-hide a memory (reversible — excluded from recall/bootstrap by default) |
+| `memory_stats` | Count breakdown by project and type — e.g. "42 memories · 6 projects" |
+| `memory_list` | Paginated listing without a search query |
+| `memory_export` | Export memories to JSON (backup or move between machines) |
+| `memory_import` | Import from JSON in merge or replace mode |
 
 ### Memory types
 
@@ -117,11 +122,8 @@ Override the path: `CLAUDE_MEMORY_DB=/path/to/memory.db claude-memory`
 
 ## Requirements
 
-- Node.js 22.5+ (uses the built-in `node:sqlite` module — no native compilation needed)
+- Node.js 18+ (uses [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) — prebuilt binaries for all major platforms, no compilation needed)
 - No cloud account, no API key, no signup
-
-> On Node.js 22.x you may see an `ExperimentalWarning: SQLite is an experimental feature` message on stderr.
-> This is harmless — the MCP protocol runs on stdin/stdout and is unaffected.
 
 ## Built by
 

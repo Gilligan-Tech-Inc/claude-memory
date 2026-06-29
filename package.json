@@ -1,6 +1,6 @@
 {
   "name": "@gilligan-tech/claude-memory",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Persistent memory MCP server for Claude Code — local SQLite, no cloud",
   "type": "module",
   "bin": {
@@ -40,14 +40,16 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "better-sqlite3": "^12.11.1",
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.5.0",
     "tsx": "^4.0.0",
     "typescript": "^5.5.0"
   },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=18.0.0"
   }
 }

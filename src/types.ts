@@ -15,6 +15,7 @@ export interface Memory {
   type: string;
   content: string;
   tags: string[];
+  archived: boolean;
   created_at: string;
   updated_at: string;
 }

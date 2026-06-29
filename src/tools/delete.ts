@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { DatabaseSync } from 'node:sqlite';
+import type { MemoryDb } from '../db.js';
 import { dbDelete } from '../db.js';
 
-export function registerDelete(server: McpServer, db: DatabaseSync): void {
+export function registerDelete(server: McpServer, db: MemoryDb): void {
   server.registerTool(
     'memory_delete',
     {

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>claude-memory — Persistent memory for Claude Code</title>
+  <meta name="description" content="Open-source MCP server that gives Claude Code persistent memory. Local SQLite — no cloud, no account, no tracking. By Gilligan Tech Inc.">
+  <meta property="og:title" content="claude-memory — Persistent memory for Claude Code">
+  <meta property="og:description" content="Store decisions, rules, and project facts in local SQLite. Retrieve them in any future session. Zero cloud dependencies.">
+  <meta property="og:url" content="https://memory.gilligantechinc.com">
+  <link rel="canonical" href="https://memory.gilligantechinc.com">
+  <style>
+    :root {
+      --ink:    #e8e4dc;
+      --muted:  #9a9490;
+      --paper:  #0f0d0b;
+      --card:   #1a1714;
+      --border: #2a2420;
+      --accent: #c4a55a;
+      --gold:   #d4b870;
+      --code:   #1e1b18;
+      --green:  #4ade80;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Aptos", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    /* ---------- layout ---------- */
+    .wrap { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- nav ---------- */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    nav .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+    nav a:hover { color: var(--ink); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+
+    /* ---------- hero ---------- */
+    .hero {
+      padding: 80px 0 64px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--ink);
+    }
+    .hero p {
+      font-size: 1.125rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 36px;
+    }
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 44px;
+    }
+    .badge-row a { display: inline-block; }
+    .badge-row img { height: 20px; vertical-align: middle; }
+
+    /* ---------- install ---------- */
+    .install-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: left;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+    .install-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    pre {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+      font-size: 0.84rem;
+      overflow-x: auto;
+      color: #c8c0b8;
+      line-height: 1.6;
+    }
+    .install-card p {
+      margin-top: 16px;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .install-card strong { color: var(--ink); }
+
+    /* ---------- sections ---------- */
+    section { padding: 64px 0; border-top: 1px solid var(--border); }
+    h2.section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 12px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 36px;
+    }
+
+    /* ---------- problem ---------- */
+    .problem-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .problem-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.975rem;
+    }
+    .problem-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ---------- tools table ---------- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    td code {
+      font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+      font-size: 0.85em;
+      color: var(--accent);
+      background: var(--code);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--card); }
+
+    /* ---------- how it works ---------- */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .flow-step {
+      flex: 1;
+      min-width: 140px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .flow-step .step-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .flow-step p { font-size: 0.9rem; color: var(--muted); margin-top: 6px; }
+    .flow-arrow { color: var(--muted); font-size: 1.2rem; }
+
+    /* ---------- footer ---------- */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .footer-sep { margin: 0 8px; opacity: 0.4; }
+
+    /* ---------- utils ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0f0d0b; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+    .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="/" class="logo">claude-memory</a>
+    <div class="nav-links">
+      <a href="https://github.com/Gilligan-Tech-Inc/claude-memory">GitHub</a>
+      <a href="https://www.npmjs.com/package/@gilligan-tech/claude-memory">npm</a>
+      <a href="https://gilligantechinc.com">Gilligan Tech</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="wrap">
+      <p class="hero-eyebrow">Open source · MIT · Node.js 18+</p>
+      <h1>Persistent memory<br>for Claude Code</h1>
+      <p>Claude forgets everything between sessions. claude-memory fixes that — locally, privately, instantly.</p>
+
+      <div class="badge-row">
+        <a href="https://www.npmjs.com/package/@gilligan-tech/claude-memory" target="_blank">
+          <img src="https://img.shields.io/npm/v/@gilligan-tech/claude-memory.svg?style=flat-square&colorB=c4a55a" alt="npm version">
+        </a>
+        <a href="https://github.com/Gilligan-Tech-Inc/claude-memory/blob/main/LICENSE" target="_blank">
+          <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT License">
+        </a>
+        <a href="https://github.com/Gilligan-Tech-Inc/claude-memory" target="_blank">
+          <img src="https://img.shields.io/badge/TypeScript-5.x-blue.svg?style=flat-square" alt="TypeScript">
+        </a>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#install">Install in 30 seconds</a>
+        <a class="btn btn-ghost" href="https://github.com/Gilligan-Tech-Inc/claude-memory" target="_blank">View on GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Problem -->
+  <section>
+    <div class="wrap">
+      <h2 class="section-title">Every session starts cold</h2>
+      <p class="section-sub">Three things that slow down every developer who uses Claude Code:</p>
+      <ul class="problem-list">
+        <li>
+          <span class="problem-icon">🧊</span>
+          <span><strong>Cold start, every time.</strong> You explain the same architecture, the same conventions, the same deployment steps — every single session. Claude has no memory.</span>
+        </li>
+        <li>
+          <span class="problem-icon">📋</span>
+          <span><strong>Lost decisions.</strong> You decided to use Drizzle instead of Prisma for a good reason. Three weeks later, Claude is suggesting Prisma again. The context is gone.</span>
+        </li>
+        <li>
+          <span class="problem-icon">🔁</span>
+          <span><strong>Repeated context.</strong> Every new chat: "This is a Next.js 15 project, we use Tailwind, ESLint config is at .eslintrc.json..." The same 200 words, every time.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install">
+    <div class="wrap">
+      <h2 class="section-title">Install in 30 seconds</h2>
+      <p class="section-sub">Add to your Claude Code config. No account, no API key, no cloud.</p>
+
+      <div class="install-card">
+        <h2>~/.claude.json</h2>
+        <pre>{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@gilligan-tech/claude-memory"]
+    }
+  }
+}</pre>
+        <p>Restart Claude Code. Done. <strong>Your memory database lives at <code style="font-size:0.85em;color:#c4a55a;background:#1e1b18;padding:2px 6px;border-radius:4px;">~/.claude-memory/memory.db</code></strong> — local SQLite, never leaves your machine.</p>
+      </div>
+
+      <p style="text-align:center;margin-top:20px;color:var(--muted);font-size:0.875rem;">
+        Or install globally: <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 8px;border-radius:4px;">npm install -g @gilligan-tech/claude-memory</code>
+        then use <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 8px;border-radius:4px;">"command": "claude-memory"</code>
+      </p>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section>
+    <div class="wrap">
+      <h2 class="section-title">Ten tools</h2>
+      <p class="section-sub">Claude Code calls them automatically — or you ask it to.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>memory_bootstrap</code></td>
+            <td>Load all memories for a project at session start. Call this first.</td>
+          </tr>
+          <tr>
+            <td><code>memory_save</code></td>
+            <td>Persist a note, decision, rule, or architecture fact.</td>
+          </tr>
+          <tr>
+            <td><code>memory_recall</code></td>
+            <td>Search by keyword — FTS5/BM25 ranking, optional tag filter, recency-weighted results.</td>
+          </tr>
+          <tr>
+            <td><code>memory_update</code></td>
+            <td>Correct an existing memory when things change.</td>
+          </tr>
+          <tr>
+            <td><code>memory_delete</code></td>
+            <td>Permanently remove a memory by ID.</td>
+          </tr>
+          <tr>
+            <td><code>memory_archive</code></td>
+            <td>Soft-hide a memory (reversible) — excluded from recall and bootstrap by default.</td>
+          </tr>
+          <tr>
+            <td><code>memory_stats</code></td>
+            <td>Count breakdown by project and type — e.g. "42 memories · 6 projects".</td>
+          </tr>
+          <tr>
+            <td><code>memory_list</code></td>
+            <td>Paginated listing of all memories without a search query.</td>
+          </tr>
+          <tr>
+            <td><code>memory_export</code></td>
+            <td>Export memories to JSON — back up or move between machines.</td>
+          </tr>
+          <tr>
+            <td><code>memory_import</code></td>
+            <td>Import from JSON in merge or replace mode.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:20px;font-size:0.875rem;color:var(--muted);">
+        Use <strong style="color:var(--ink);">type</strong> to categorize: <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 6px;border-radius:4px;">rules</code>, <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 6px;border-radius:4px;">architecture</code>, <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 6px;border-radius:4px;">deploy</code>, <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 6px;border-radius:4px;">decision</code>, <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 6px;border-radius:4px;">preference</code>, <code style="font-size:0.85em;color:var(--accent);background:var(--code);padding:2px 6px;border-radius:4px;">note</code>.
+        Tag memories with <strong style="color:var(--ink);">tags</strong> for AND-filtered recall. Scope with <strong style="color:var(--ink);">repo</strong>, or leave empty for globals that surface in every project.
+      </p>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section>
+    <div class="wrap">
+      <h2 class="section-title">How it works</h2>
+      <p class="section-sub">Dead simple. No vectors, no embeddings, no cloud calls.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-num">Session A</div>
+          <strong>You save</strong>
+          <p>Tell Claude something worth keeping. It calls <code style="font-size:0.82em;color:var(--accent);">memory_save</code>.</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-num">Storage</div>
+          <strong>Local SQLite</strong>
+          <p>Stored in <code style="font-size:0.82em;color:var(--accent);">~/.claude-memory/memory.db</code> on your machine.</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-num">Session B</div>
+          <strong>Claude loads</strong>
+          <p>Next session calls <code style="font-size:0.82em;color:var(--accent);">memory_bootstrap</code>. All context restored.</p>
+        </div>
+      </div>
+
+      <p style="margin-top:28px;color:var(--muted);font-size:0.9rem;">
+        Search uses SQLite FTS5 (full-text search with BM25 ranking and a light recency boost) — fast, offline, no API calls.
+        No OpenAI embeddings. No Qdrant. Everything runs on your laptop.
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="wrap" style="text-align:center;">
+      <h2 class="section-title">Get started now</h2>
+      <p class="section-sub" style="margin-bottom:32px;">MIT license. No telemetry. No vendor lock-in.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/Gilligan-Tech-Inc/claude-memory" target="_blank">View on GitHub</a>
+        <a class="btn btn-ghost" href="https://www.npmjs.com/package/@gilligan-tech/claude-memory" target="_blank">npm package</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Built by <a href="https://gilligantechinc.com">Gilligan Tech Inc.</a>
+      <span class="footer-sep">·</span>
+      Same team behind <a href="https://briefblip.com">Briefblip</a> — AI meeting intelligence
+      <span class="footer-sep">·</span>
+      <a href="https://github.com/Gilligan-Tech-Inc/claude-memory/issues">Issues</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
