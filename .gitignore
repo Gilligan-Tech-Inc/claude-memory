@@ -3,3 +3,4 @@ dist/
 *.db
 .env
 npm-debug.log*
+*.tgz
