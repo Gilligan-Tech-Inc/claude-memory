@@ -122,7 +122,7 @@ Override the path: `CLAUDE_MEMORY_DB=/path/to/memory.db claude-memory`
 
 ## Requirements
 
-- Node.js 18+ (uses [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) — prebuilt binaries for all major platforms, no compilation needed)
+- Node.js 22 or 24 (uses [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) — ships prebuilt binaries for these versions on all major platforms, so no compiler is needed)
 - No cloud account, no API key, no signup
 
 ## Built by
