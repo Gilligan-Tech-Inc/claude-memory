@@ -2,7 +2,7 @@
 
 > Persistent memory for Claude Code and Claude Desktop. Runs locally — no cloud, no account, no tracking.
 
-[![npm version](https://img.shields.io/npm/v/@gilligan-tech/claude-memory.svg)](https://www.npmjs.com/package/@gilligan-tech/claude-memory)
+[![npm version](https://img.shields.io/npm/v/@gilligan-tech.inc/claude-memory.svg)](https://www.npmjs.com/package/@gilligan-tech.inc/claude-memory)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
@@ -26,7 +26,7 @@ Add to your Claude Code config (`~/.claude.json`):
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@gilligan-tech/claude-memory"]
+      "args": ["-y", "@gilligan-tech.inc/claude-memory"]
     }
   }
 }
@@ -39,7 +39,7 @@ Or for Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_conf
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@gilligan-tech/claude-memory"]
+      "args": ["-y", "@gilligan-tech.inc/claude-memory"]
     }
   }
 }
@@ -47,7 +47,7 @@ Or for Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_conf
 
 Restart Claude Code / Claude Desktop. Done.
 
-> **Faster startup:** `npm install -g @gilligan-tech/claude-memory` then use `"command": "claude-memory"` in your config.
+> **Faster startup:** `npm install -g @gilligan-tech.inc/claude-memory` then use `"command": "claude-memory"` in your config.
 
 ## Usage
 

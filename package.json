@@ -1,10 +1,10 @@
 {
-  "name": "@gilligan-tech/claude-memory",
-  "version": "0.2.1",
+  "name": "@gilligan-tech.inc/claude-memory",
+  "version": "0.2.2",
   "description": "Persistent memory MCP server for Claude Code — local SQLite, no cloud",
   "type": "module",
   "bin": {
-    "claude-memory": "./dist/index.js"
+    "claude-memory": "dist/index.js"
   },
   "files": [
     "dist",
@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Gilligan-Tech-Inc/claude-memory"
+    "url": "git+https://github.com/Gilligan-Tech-Inc/claude-memory.git"
   },
   "homepage": "https://memory.gilligantechinc.com",
   "bugs": {
