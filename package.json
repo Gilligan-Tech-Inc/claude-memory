@@ -1,6 +1,6 @@
 {
   "name": "@gilligan-tech/claude-memory",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Persistent memory MCP server for Claude Code — local SQLite, no cloud",
   "type": "module",
   "bin": {
