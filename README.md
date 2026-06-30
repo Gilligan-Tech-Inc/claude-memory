@@ -60,6 +60,8 @@ Claude will call `memory_bootstrap("my-app")` and load all the context you've sa
 During the session, Claude will automatically call `memory_save` when you tell it something
 worth remembering — or you can ask it to.
 
+New to persistent MCP memory? Read the [Claude Memory tutorial](docs/tutorial.md).
+
 ## Tools
 
 | Tool | Description |
