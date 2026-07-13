@@ -2,7 +2,9 @@
 
 > Persistent memory for Claude Code and Claude Desktop. Runs locally — no cloud, no account, no tracking.
 
-[![npm version](https://img.shields.io/npm/v/@gilligan-tech.inc/claude-memory.svg)](https://www.npmjs.com/package/@gilligan-tech.inc/claude-memory)
+[![CI](https://github.com/Gilligan-Tech-Inc/claude-memory/actions/workflows/ci.yml/badge.svg)](https://github.com/Gilligan-Tech-Inc/claude-memory/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@gilligantechinc/claude-memory.svg)](https://www.npmjs.com/package/@gilligantechinc/claude-memory)
+[![npm downloads](https://img.shields.io/npm/dm/@gilligantechinc/claude-memory.svg)](https://www.npmjs.com/package/@gilligantechinc/claude-memory)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
@@ -26,7 +28,7 @@ Add to your Claude Code config (`~/.claude.json`):
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@gilligan-tech.inc/claude-memory"]
+      "args": ["-y", "@gilligantechinc/claude-memory"]
     }
   }
 }
@@ -39,7 +41,7 @@ Or for Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_conf
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@gilligan-tech.inc/claude-memory"]
+      "args": ["-y", "@gilligantechinc/claude-memory"]
     }
   }
 }
@@ -47,7 +49,7 @@ Or for Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_conf
 
 Restart Claude Code / Claude Desktop. Done.
 
-> **Faster startup:** `npm install -g @gilligan-tech.inc/claude-memory` then use `"command": "claude-memory"` in your config.
+> **Faster startup:** `npm install -g @gilligantechinc/claude-memory` then use `"command": "claude-memory"` in your config.
 
 ## Usage
 
@@ -90,6 +92,20 @@ New to persistent MCP memory? Read the [Claude Memory tutorial](docs/tutorial.md
 
 `rules` and `architecture` memories surface first in `memory_bootstrap`.
 
+### How recall ranks results
+
+`memory_recall` fuses two signals with **Reciprocal Rank Fusion (RRF)**: keyword relevance
+(FTS5/BM25) and recency. RRF combines *ranks* rather than raw scores, so relevance stays the
+primary signal while fresher notes gently float up and cleanly break ties — no hand-tuned
+"points per day" constant that can swamp a good keyword match as notes age.
+
+### Fitting a context budget
+
+`memory_bootstrap` accepts an optional `token_budget`. When set, the most load-bearing
+notes are kept first (`rules` and `architecture`, then by recency) and lower-priority notes
+are omitted with a note telling the agent to `memory_recall` for the rest — so a large
+memory store never blows your context window at session start.
+
 ## Example session
 
 ```
@@ -109,6 +125,14 @@ Claude: [calls memory_save("Switched to Hono (from Express) June 2026 — faster
 
 Saved memory #5.
 ```
+
+## Sibling project — need document RAG?
+
+`claude-memory` is intentionally narrow: short, authoritative project facts. If you need to
+search **documents** — specs, transcripts, regulations, larger knowledge bases — use its
+sibling in the same family, [`@gilligantechinc/claude-memory-rag`](https://github.com/Gilligan-Tech-Inc/local-rag-mcp)
+(SQLite FTS5 + optional local Ollama vector search). Keep durable agent instructions here;
+put reference material there.
 
 ## Data
 

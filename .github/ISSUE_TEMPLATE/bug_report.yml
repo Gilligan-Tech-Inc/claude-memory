@@ -1,0 +1,53 @@
+name: Bug report
+description: Something in claude-memory isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug. Please fill in as much as you can.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+      placeholder: memory_recall returned nothing for a term I know is saved…
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact tool calls or CLI/config used.
+      placeholder: |
+        1. memory_save({ content: "...", repo: "app" })
+        2. memory_recall({ query: "...", repo: "app" })
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      description: Output of `npm ls @gilligantechinc/claude-memory` or the version in your config.
+    validations:
+      required: true
+  - type: dropdown
+    id: node
+    attributes:
+      label: Node.js version
+      options: ["22.x", "24.x", "other (note in description)"]
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 14 / Windows 11 / Ubuntu 24.04
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Any stderr from the MCP server or CLI. This will be automatically formatted as code.
+      render: shell

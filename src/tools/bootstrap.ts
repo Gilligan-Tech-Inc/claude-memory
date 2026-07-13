@@ -20,10 +20,23 @@ export function registerBootstrap(server: McpServer, db: MemoryDb): void {
           .describe(
             "Project slug (e.g. 'my-app'). Matches memories saved with this repo value.",
           ),
+        token_budget: z
+          .number()
+          .int()
+          .min(100)
+          .max(200000)
+          .optional()
+          .describe(
+            'Optional approximate token budget. When set, the most important notes ' +
+              '(rules and architecture first, then by recency) are kept within the budget ' +
+              'and the rest are omitted. Omit for no limit.',
+          ),
       },
     },
     async (args) => {
-      const { repo_notes, global_notes } = dbBootstrap(db, args.repo);
+      const { repo_notes, global_notes, omitted } = dbBootstrap(db, args.repo, {
+        token_budget: args.token_budget,
+      });
       const total = repo_notes.length + global_notes.length;
 
       if (total === 0) {
@@ -50,6 +63,12 @@ export function registerBootstrap(server: McpServer, db: MemoryDb): void {
       }
       if (global_notes.length > 0) {
         lines.push(`## Global memories\n${fmt(global_notes)}`);
+      }
+      if (omitted > 0) {
+        lines.push(
+          `_${omitted} lower-priority ${omitted === 1 ? 'note was' : 'notes were'} omitted to fit the token budget. ` +
+            `Use memory_recall or memory_list to see the rest._`,
+        );
       }
 
       return {

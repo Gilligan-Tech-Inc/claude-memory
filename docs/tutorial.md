@@ -5,7 +5,7 @@ sessions are temporary. When you close Claude Code or Claude Desktop, the model 
 automatically remember your project rules, deployment notes, architecture decisions, or the
 preferences you explained last week.
 
-`@gilligan-tech.inc/claude-memory` gives Claude a local, persistent memory it can use across
+`@gilligantechinc/claude-memory` gives Claude a local, persistent memory it can use across
 sessions. It is an MCP server backed by SQLite on your machine. There is no cloud account,
 no hosted database, and no tracking service.
 
@@ -51,7 +51,7 @@ Add the MCP server to Claude Code:
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@gilligan-tech.inc/claude-memory"]
+      "args": ["-y", "@gilligantechinc/claude-memory"]
     }
   }
 }
@@ -62,7 +62,7 @@ Then restart Claude Code.
 For faster startup, install it globally:
 
 ```bash
-npm install -g @gilligan-tech.inc/claude-memory
+npm install -g @gilligantechinc/claude-memory
 ```
 
 Then configure:

@@ -1,5 +1,5 @@
 {
-  "name": "@gilligan-tech.inc/claude-memory",
+  "name": "@gilligantechinc/claude-memory",
   "version": "0.2.2",
   "description": "Persistent memory MCP server for Claude Code — local SQLite, no cloud",
   "type": "module",
@@ -17,7 +17,8 @@
     "dev": "tsx src/index.ts",
     "prepack": "node -e \"try{require('fs').chmodSync('dist/index.js',0o755)}catch(e){}\"",
     "prepublishOnly": "npm run build",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs"
   },
   "keywords": [
     "claude",

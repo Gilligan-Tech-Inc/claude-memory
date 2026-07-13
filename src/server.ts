@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { MemoryDb } from './db.js';
 import { registerSave } from './tools/save.js';
@@ -11,9 +12,11 @@ import { registerList } from './tools/list.js';
 import { registerExport } from './tools/export.js';
 import { registerImport } from './tools/import.js';
 
+const { version } = createRequire(import.meta.url)('../package.json') as { version: string };
+
 export function buildServer(db: MemoryDb): McpServer {
   const server = new McpServer(
-    { name: 'claude-memory', version: '0.2.0' },
+    { name: 'claude-memory', version },
     {
       capabilities: { tools: {} },
       instructions:
