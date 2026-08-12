@@ -4,3 +4,6 @@ dist/
 .env
 npm-debug.log*
 *.tgz
+
+# Local MCP client config — holds a live bearer token. Never commit.
+.mcp.json
